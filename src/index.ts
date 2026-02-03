@@ -6,14 +6,16 @@ import { execFile } from "child_process";
 import path from "path";
 import { z } from "zod";
 
-const jxaPath = path.join(__dirname, "notify.jxa.js");
+const notifierPath = path.join(
+  __dirname,
+  "../bin/Notifier.app/Contents/MacOS/notifier",
+);
 
 function notify(message: string, title: string): Promise<void> {
   return new Promise((resolve, reject) => {
     execFile(
-      "osascript",
-      ["-l", "JavaScript", jxaPath],
-      { env: { ...process.env, NOTIFY_MESSAGE: message, NOTIFY_TITLE: title } },
+      notifierPath,
+      ["--title", title, "--message", message],
       (error) => {
         if (error) {
           return reject(error);

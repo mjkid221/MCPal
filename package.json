@@ -6,8 +6,13 @@
   "bin": {
     "mac-mcp-notifier": "dist/index.js"
   },
+  "files": [
+    "dist",
+    "bin"
+  ],
   "scripts": {
-    "build": "tsc && cp src/notify.jxa.js dist/",
+    "build": "tsc && bash scripts/build-notifier.sh",
+    "build:swift": "bash scripts/build-notifier.sh",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
