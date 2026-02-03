@@ -1,10 +1,13 @@
 {
-  "name": "example-package",
+  "name": "mac-mcp-notifier",
   "version": "1.0.0",
-  "description": "Example package",
-  "main": "index.js",
+  "description": "MCP server that sends native macOS notifications",
+  "main": "dist/index.js",
+  "bin": {
+    "mac-mcp-notifier": "dist/index.js"
+  },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp src/notify.jxa.js dist/",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
@@ -13,10 +16,13 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.3",
+    "@types/node": "^25.2.0",
     "husky": "^9.1.7",
-    "lint-staged": "^15.3.0"
+    "lint-staged": "^15.3.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/ms": "^2.1.0",
