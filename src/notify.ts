@@ -1,6 +1,9 @@
 import fs from "fs";
 import nodeNotifier from "node-notifier";
+import os from "os";
 import path from "path";
+
+const isMacOS = os.platform() === "darwin";
 
 // Find pnpm paths for node-notifier
 function findPnpmPaths(): string[] {
@@ -85,7 +88,8 @@ export function getClientsDir(): string {
 export function getContentImageForClient(
   clientName?: string,
 ): string | undefined {
-  if (!clientName) {
+  // contentImage is a macOS-specific feature (terminal-notifier)
+  if (!isMacOS || !clientName) {
     return undefined;
   }
 
@@ -105,14 +109,19 @@ export function getContentImageForClient(
   return fs.existsSync(iconPath) ? iconPath : undefined;
 }
 
+// Default timeouts (in seconds)
+const TIMEOUT_SIMPLE = 20; // Simple notification
+const TIMEOUT_ACTIONS = 30; // Notification with action buttons
+const TIMEOUT_REPLY = 60; // Notification with text reply input
+
 export interface NotifyOptions {
   message: string;
   title: string;
   actions?: string[];
   dropdownLabel?: string;
   reply?: boolean;
-  sound?: boolean | string;
   contentImage?: string;
+  timeout?: number; // Custom timeout in seconds (overrides defaults)
 }
 
 export interface NotifyResult {
@@ -121,15 +130,34 @@ export interface NotifyResult {
   activationType?: string;
 }
 
-// Create a notifier instance with customPath pointing to our renamed MCPal.app
+// Create a notifier instance
+// On macOS: uses customPath pointing to our renamed MCPal.app
+// On other platforms: uses default node-notifier (Linux: notify-send, Windows: toast)
 function getNotifier(): nodeNotifier.NodeNotifier {
-  const customPath = getNotifierPath();
-  if (customPath) {
-    // Create a NotificationCenter instance with customPath in constructor options
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return new (nodeNotifier as any).NotificationCenter({ customPath });
+  if (isMacOS) {
+    const customPath = getNotifierPath();
+    if (customPath) {
+      // Create a NotificationCenter instance with customPath in constructor options
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return new (nodeNotifier as any).NotificationCenter({ customPath });
+    }
   }
+  // On non-macOS or if customPath not found, use default notifier
   return nodeNotifier;
+}
+
+// Determine appropriate timeout based on notification type
+function getTimeout(options: NotifyOptions): number {
+  if (options.timeout !== undefined) {
+    return options.timeout; // User-specified timeout takes precedence
+  }
+  if (options.reply) {
+    return TIMEOUT_REPLY; // Reply needs most time (typing)
+  }
+  if (options.actions && options.actions.length > 0) {
+    return TIMEOUT_ACTIONS; // Actions need moderate time
+  }
+  return TIMEOUT_SIMPLE; // Simple notifications are quick
 }
 
 export function notify(options: NotifyOptions): Promise<NotifyResult> {
@@ -138,11 +166,10 @@ export function notify(options: NotifyOptions): Promise<NotifyResult> {
       title: options.title,
       message: options.message,
       wait: true,
-      timeout: 20,
+      timeout: getTimeout(options),
       actions: options.actions,
       dropdownLabel: options.dropdownLabel,
       reply: options.reply,
-      sound: options.sound,
       ...(options.contentImage && { contentImage: options.contentImage }),
     };
 

@@ -12,16 +12,21 @@ const server = new McpServer(
     version: "1.0.0",
   },
   {
-    instructions:
-      "MCPal is your friendly notification buddy! Use me to send native desktop notifications to the user. I'll let you know how they responded - whether they clicked, replied, or dismissed the notification.",
+    instructions: `MCPal is your friendly notification buddy! Use me to send native desktop notifications to the user.
+
+IMPORTANT: When you need user input (questions, clarifications, or feedback), use reply=true to let them type a response directly in the notification. This is the fastest way to continue a conversation without switching windows.
+
+Use cases:
+- Task complete → simple notification
+- Need a decision → actions (Yes/No buttons)
+- Need free-form input → reply=true (PREFERRED for questions)`,
   },
 );
 
 server.registerTool(
   "send_notification",
   {
-    description:
-      "Send a native notification with a title and message. Supports action buttons and text reply.",
+    description: `Send a native desktop notification. Use reply=true when you need user input - they can type a response directly! Perfect for asking questions or getting feedback without interrupting their flow.`,
     title: "MCPal Notification",
     inputSchema: {
       message: z.string().describe("The notification body text"),
@@ -29,7 +34,9 @@ server.registerTool(
       actions: z
         .array(z.string())
         .optional()
-        .describe("Action buttons to display (e.g., ['Yes', 'No', 'Maybe'])"),
+        .describe(
+          "Action buttons for choices (e.g., ['Yes', 'No']). Use for simple decisions.",
+        ),
       dropdownLabel: z
         .string()
         .optional()
@@ -39,27 +46,22 @@ server.registerTool(
       reply: z
         .boolean()
         .optional()
-        .describe("Enable text reply input in the notification"),
-      sound: z
-        .union([z.boolean(), z.string()])
+        .describe(
+          "RECOMMENDED: Enable text reply input. Use this when you need free-form user input - they can respond without switching windows!",
+        ),
+      timeout: z
+        .number()
         .optional()
         .describe(
-          "Play sound: true for default, or one of: Basso, Blow, Bottle, Frog, Funk, Glass, Hero, Morse, Ping, Pop, Purr, Sosumi, Submarine, Tink",
+          "Custom timeout in seconds. Defaults: 20s (simple), 30s (actions), 60s (reply)",
         ),
     },
   },
-  async ({ message, title, actions, dropdownLabel, reply, sound }) => {
+  async ({ message, title, actions, dropdownLabel, reply, timeout }) => {
     try {
       // Get client info to determine which icon to show
       const clientInfo = server.server.getClientVersion();
       const contentImage = getContentImageForClient(clientInfo?.name);
-
-      // Log client info for debugging (helps discover actual client names)
-      if (clientInfo) {
-        console.error(
-          `[MCPal] Client: ${clientInfo.name} v${clientInfo.version}`,
-        );
-      }
 
       const result = await notify({
         message,
@@ -67,8 +69,8 @@ server.registerTool(
         actions,
         dropdownLabel,
         reply,
-        sound,
         contentImage,
+        timeout,
       });
 
       // Build a friendly response

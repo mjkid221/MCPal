@@ -8,7 +8,6 @@
  *
  * Test types:
  *   simple   - Basic notification (default)
- *   sound    - Notification with sound
  *   actions  - Notification with action buttons
  *   reply    - Notification with text reply input
  *   all      - Run all tests sequentially
@@ -31,17 +30,6 @@ async function testSimple(): Promise<void> {
   const result = await notify({
     title: "Test Notification",
     message: "This is a simple test notification.",
-    contentImage,
-  });
-  console.log("Result:", result);
-}
-
-async function testSound(): Promise<void> {
-  console.log("\n--- Testing: Notification with Sound ---");
-  const result = await notify({
-    title: "Sound Test",
-    message: "This notification should play the Ping sound.",
-    sound: "Ping",
     contentImage,
   });
   console.log("Result:", result);
@@ -78,9 +66,6 @@ async function runTests(): Promise<void> {
       case "simple":
         await testSimple();
         break;
-      case "sound":
-        await testSound();
-        break;
       case "actions":
         await testActions();
         break;
@@ -89,14 +74,13 @@ async function runTests(): Promise<void> {
         break;
       case "all":
         await testSimple();
-        await testSound();
         await testActions();
         await testReply();
         console.log("\n--- All tests complete ---");
         break;
       default:
         console.error(`Unknown test type: ${testType}`);
-        console.log("Available: simple, sound, actions, reply, all");
+        console.log("Available: simple, actions, reply, all");
         process.exit(1);
     }
   } catch (err) {

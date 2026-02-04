@@ -1,23 +1,15 @@
 # MCPal
 
-MCP server that sends native macOS notifications with support for action buttons, text replies, custom sounds, and LLM-aware icons.
-
-## Installation
-
-```bash
-npm install mcpal
-# or
-pnpm add mcpal
-```
+MCP server that sends native macOS notifications with support for action buttons, text replies, and LLM-aware icons.
 
 ## Usage
 
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+Add to your MCP Config:
 
 ```json
 {
   "mcpServers": {
-    "notifier": {
+    "mcpal": {
       "command": "npx",
       "args": ["mcpal"]
     }
@@ -38,11 +30,6 @@ Send native notifications with optional features.
 | `actions` | string[] | No | Action buttons (e.g., `["Yes", "No", "Maybe"]`) |
 | `dropdownLabel` | string | No | Label for actions dropdown (required for multiple actions) |
 | `reply` | boolean | No | Enable text reply input |
-| `sound` | boolean \| string | No | Play sound: `true` for default, or a sound name |
-
-### Available Sounds
-
-`Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`
 
 ### Examples
 
@@ -73,14 +60,6 @@ Send native notifications with optional features.
 }
 ```
 
-**With sound:**
-```json
-{
-  "message": "Task finished",
-  "sound": "Ping"
-}
-```
-
 ## LLM-Aware Icons
 
 MCPal automatically detects which LLM client is calling the tool and displays the appropriate icon in notifications:
@@ -95,36 +74,28 @@ MCPal automatically detects which LLM client is calling the tool and displays th
 
 This works via the MCP protocol's client identification - each client sends its name during initialization.
 
+### Adding New Client Icons
+
+To add support for a new LLM client, add a PNG to `src/assets/clients/` and update the mapping in `src/notify.ts`.
+
+**Icon Specifications:**
+
+| Property | Requirement |
+|----------|-------------|
+| Format | PNG with transparency (RGBA) |
+| Dimensions | 128×128 pixels |
+| File size | <10KB (use pngquant for compression) |
+
+```bash
+# Optimize a new icon
+convert input.png -resize 128x128 -background none -gravity center -extent 128x128 temp.png
+pngquant --quality=65-80 --output src/assets/clients/newclient.png temp.png
+rm temp.png
+```
+
 ## Custom App Icon
 
 The package includes a custom notification icon that replaces the default Terminal icon on macOS. This is automatically configured during installation via the `postinstall` script.
-
-### Clearing Icon Cache
-
-If you change the icon (`src/assets/mcpal.icns`) and macOS doesn't show the updated icon, you need to clear the icon cache:
-
-```bash
-pnpm run clear-icon-cache
-```
-
-This script:
-1. Clears the Launch Services database
-2. Restarts NotificationCenter
-
-**Manual steps if the script doesn't work:**
-
-```bash
-# Clear Launch Services cache
-/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
-
-# Restart NotificationCenter
-killall NotificationCenter
-```
-
-If the icon still doesn't update:
-- Wait a few seconds and try sending another notification
-- Log out and log back in
-- In extreme cases, restart your Mac
 
 ### Notification Permissions
 
@@ -151,6 +122,19 @@ pnpm run lint:fix
 pnpm run format:fix
 ```
 
+### MCP Inspector
+
+Test the MCP server interactively using the official inspector:
+
+```bash
+pnpx @modelcontextprotocol/inspector node dist/index.js
+```
+
+This opens a web UI where you can:
+- View available tools and their schemas
+- Send test notifications with different parameters
+- See raw MCP protocol messages
+
 ### Testing Notifications
 
 Test the notification system directly without running the MCP server:
@@ -158,9 +142,6 @@ Test the notification system directly without running the MCP server:
 ```bash
 # Simple notification (default)
 pnpm run test:notification
-
-# With sound
-pnpm run test:notification sound
 
 # With action buttons
 pnpm run test:notification actions
