@@ -20,7 +20,7 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install -r --no-frozen-lockfile
+        run: pnpm install --no-frozen-lockfile --ignore-scripts
 
       - name: Format
         run: pnpm run format:fix
