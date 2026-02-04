@@ -1,18 +1,25 @@
 {
-  "name": "mac-mcp-notifier",
+  "name": "mcpal",
   "version": "1.0.0",
-  "description": "MCP server that sends native macOS notifications",
+  "description": "MCP server that sends native notifications with LLM-aware icons",
   "main": "dist/index.js",
   "bin": {
-    "mac-mcp-notifier": "dist/index.js"
+    "mcpal": "dist/index.js"
   },
+  "files": [
+    "dist/",
+    "src/assets/"
+  ],
   "scripts": {
-    "build": "tsc && cp src/notify.jxa.js dist/",
+    "postinstall": "node dist/scripts/setup-notifier.js",
+    "test:notification": "node dist/scripts/test-notification.js",
+    "build": "tsc && cp -r src/assets dist/",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "prepare": "husky"
+    "format:fix": "prettier --write \"src/**/*.ts\"",
+    "prepare": "husky",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -22,10 +29,12 @@
     "@types/node": "^25.2.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.3.0",
-    "zod": "^3.25.76"
+    "node-notifier": "^10.0.1",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/ms": "^2.1.0",
+    "@types/node-notifier": "^8.0.5",
     "@typescript-eslint/eslint-plugin": "^8.18.2",
     "@typescript-eslint/parser": "^8.18.2",
     "eslint": "^8.56.0",
