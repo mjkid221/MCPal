@@ -57,7 +57,7 @@ server.registerTool(
         .number()
         .optional()
         .describe(
-          "Custom timeout in seconds. Defaults: 20s (simple), 30s (actions), 60s (reply)",
+          "Custom timeout in seconds. Defaults: 10s (simple), 30s (actions), 60s (reply)",
         ),
     },
   },
