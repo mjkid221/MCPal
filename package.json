@@ -1,6 +1,6 @@
 {
   "name": "mcpal",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "description": "MCP server that sends native notifications with LLM-aware icons",
   "main": "dist/index.js",
   "bin": {
