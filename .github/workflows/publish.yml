@@ -24,10 +24,10 @@ jobs:
         run: npm install -g npm@latest
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile --ignore-scripts
+        run: npm install --no-frozen-lockfile --ignore-scripts
 
       - name: Build
-        run: pnpm run build
+        run: npm run build
 
       - name: Publish to npm
         run: npm publish --provenance --access public
