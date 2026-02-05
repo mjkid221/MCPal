@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/f3803867-5b50-4cc6-baa5-1dfe372c7169" alt="MCPal" width="128" />
+  <img src="https://amethyst-available-jellyfish-543.mypinata.cloud/ipfs/bafkreibiatja4osqbwa2slfga4m2lungn5d46ylum6tnatb5hvgtgqznmi" alt="MCPal" width="128" />
 </p>
 
 <h1 align="center">MCPal</h1>
@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/5d113a38-f5b1-41de-be39-606e14a25b4f" alt="MCPal Notification" width="400" />
+  <img src="https://amethyst-available-jellyfish-543.mypinata.cloud/ipfs/bafkreiedp2ie4xzwj4fxcmpj2sgk4t6z7r5b74k3m5ap7eqt2tiek2faju" alt="MCPal Notification" width="400" />
 </p>
 
 ## Usage
