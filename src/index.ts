@@ -57,7 +57,7 @@ server.registerTool(
         .number()
         .optional()
         .describe(
-          "Custom timeout in seconds. Defaults: 20s (simple), 30s (actions), 60s (reply)",
+          "Custom timeout in seconds. Defaults: 10s (simple), 30s (actions), 60s (reply)",
         ),
     },
   },
@@ -83,7 +83,6 @@ server.registerTool(
       parts.push(`Title: "${title ?? "MCPal"}"`);
       parts.push(`Message: "${message}"`);
 
-      // Describe user's response
       if (result.activationType === "contentsClicked") {
         parts.push(
           `The user clicked the notification. Curious one, aren't they?`,
@@ -120,7 +119,6 @@ server.registerTool(
 );
 
 async function main() {
-  // Ensure MCPal.app is set up (handles npx installs where postinstall doesn't run)
   await ensureMcpalAppSetup();
 
   const transport = new StdioServerTransport();

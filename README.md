@@ -5,7 +5,8 @@
 <h1 align="center">MCPal</h1>
 
 <p align="center">
-  MCP server that sends native macOS notifications with support for action buttons, text replies, and LLM-aware icons.
+  MCP server for native macOS notifications with action buttons, text replies, and LLM-aware icons.<br/>
+  Built for <strong>Claude Code</strong> and <strong>Claude Desktop</strong>. Compatible with any MCP client.
 </p>
 
 <p align="center">
@@ -38,6 +39,27 @@ claude mcp add mcpal -- npx -y mcpal
 # User scope (available in all projects)
 claude mcp add mcpal --scope user -- npx -y mcpal
 ```
+
+### Configuring Proactive Notifications (Claude)
+
+MCPal includes built-in MCP instructions that tell Claude *how* to use notifications. To configure *when* Claude should proactively notify you, add this to your `CLAUDE.md`:
+
+```markdown
+## Post Task Completion Hook
+
+ALWAYS use MCPal MCP tool to notify me when you finish any tasks (this includes reading files, investigating, coding). You should use this tool before you terminate any conversations. Also notify when:
+- A long-running task completes (builds, tests, deployments)
+- You need my input or decision on something
+- You encounter an error that blocks progress
+
+Use `reply: true` when you need free-form input from me.
+```
+
+Customize this based on your preferences - some users want frequent updates, others only want notifications for important decisions.
+
+### Other MCP Clients
+
+MCPal works with any MCP-compatible client (Cursor, VS Code with MCP extensions, etc.). The setup varies by client - refer to your client's documentation for adding MCP servers.
 
 ## Tool: `send_notification`
 
@@ -84,7 +106,7 @@ Send native notifications with optional features.
 
 ## LLM-Aware Icons
 
-MCPal automatically detects which LLM client is calling the tool and displays the appropriate icon in notifications:
+MCPal detects which MCP client is calling the tool and displays the appropriate icon in notifications. Currently tested with Claude Code and Claude Desktop:
 
 | Client | Icon |
 |--------|------|
@@ -177,4 +199,6 @@ pnpm run test:notification all
 
 ## License
 
-MIT
+**Code:** MIT License
+
+**MCPal Icon & Branding:** © 2025 All Rights Reserved. The MCPal logo and icon designs may not be used without permission.

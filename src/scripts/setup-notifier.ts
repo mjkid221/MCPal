@@ -1,136 +1,21 @@
 #!/usr/bin/env node
 
 import fs from "fs";
-import os from "os";
 import path from "path";
+
+import { findAllNotifierBaseDirs } from "../notifier-paths";
 
 // Get the package root (where src/assets lives)
 const packageRoot = path.resolve(__dirname, "..", "..");
 
 /**
  * Find all potential locations where node-notifier's terminal-notifier.app might be located.
- * Searches both local node_modules and npx cache directories.
+ * Uses shared discovery logic and appends terminal-notifier.app to each base directory.
  */
 function findAllTerminalNotifierPaths(): string[] {
-  const paths: string[] = [];
-
-  // 1. Local node_modules (npm/yarn)
-  paths.push(
-    path.join(
-      packageRoot,
-      "node_modules",
-      "node-notifier",
-      "vendor",
-      "mac.noindex",
-      "terminal-notifier.app",
-    ),
+  return findAllNotifierBaseDirs(packageRoot).map((dir) =>
+    path.join(dir, "terminal-notifier.app"),
   );
-
-  // 2. Local node_modules (pnpm)
-  const localPnpmDir = path.join(packageRoot, "node_modules", ".pnpm");
-  if (fs.existsSync(localPnpmDir)) {
-    try {
-      const entries = fs.readdirSync(localPnpmDir);
-      const nodeNotifierDir = entries.find((e) =>
-        e.startsWith("node-notifier@"),
-      );
-      if (nodeNotifierDir) {
-        paths.push(
-          path.join(
-            localPnpmDir,
-            nodeNotifierDir,
-            "node_modules",
-            "node-notifier",
-            "vendor",
-            "mac.noindex",
-            "terminal-notifier.app",
-          ),
-        );
-      }
-    } catch {
-      // Ignore errors
-    }
-  }
-
-  // 3. npx cache locations
-  const npxCacheDirs = [
-    // npm npx cache
-    path.join(os.homedir(), ".npm", "_npx"),
-    // pnpm dlx cache
-    path.join(os.homedir(), "Library", "Caches", "pnpm", "dlx"),
-  ];
-
-  for (const cacheDir of npxCacheDirs) {
-    if (!fs.existsSync(cacheDir)) {
-      continue;
-    }
-
-    try {
-      // Search recursively for node-notifier in cache
-      const cacheEntries = fs.readdirSync(cacheDir);
-      for (const entry of cacheEntries) {
-        const entryPath = path.join(cacheDir, entry);
-
-        // Check for node-notifier in standard npm structure
-        const npmPath = path.join(
-          entryPath,
-          "node_modules",
-          "node-notifier",
-          "vendor",
-          "mac.noindex",
-          "terminal-notifier.app",
-        );
-        if (fs.existsSync(npmPath)) {
-          paths.push(npmPath);
-        }
-
-        // Check for node-notifier in mcpal's node_modules (npx installs mcpal which has node-notifier as dep)
-        const mcpalPath = path.join(
-          entryPath,
-          "node_modules",
-          "mcpal",
-          "node_modules",
-          "node-notifier",
-          "vendor",
-          "mac.noindex",
-          "terminal-notifier.app",
-        );
-        if (fs.existsSync(mcpalPath)) {
-          paths.push(mcpalPath);
-        }
-
-        // Check pnpm structure in cache
-        const pnpmDir = path.join(entryPath, "node_modules", ".pnpm");
-        if (fs.existsSync(pnpmDir)) {
-          try {
-            const pnpmEntries = fs.readdirSync(pnpmDir);
-            const nodeNotifierDir = pnpmEntries.find((e) =>
-              e.startsWith("node-notifier@"),
-            );
-            if (nodeNotifierDir) {
-              paths.push(
-                path.join(
-                  pnpmDir,
-                  nodeNotifierDir,
-                  "node_modules",
-                  "node-notifier",
-                  "vendor",
-                  "mac.noindex",
-                  "terminal-notifier.app",
-                ),
-              );
-            }
-          } catch {
-            // Ignore errors
-          }
-        }
-      }
-    } catch {
-      // Ignore errors reading cache directories
-    }
-  }
-
-  return paths;
 }
 
 /**
