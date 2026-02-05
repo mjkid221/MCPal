@@ -5,6 +5,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 
 import { getContentImageForClient, notify } from "./notify.js";
+import { ensureMcpalAppSetup } from "./scripts/setup-notifier.js";
 
 const server = new McpServer(
   {
@@ -119,6 +120,9 @@ server.registerTool(
 );
 
 async function main() {
+  // Ensure MCPal.app is set up (handles npx installs where postinstall doesn't run)
+  await ensureMcpalAppSetup();
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
