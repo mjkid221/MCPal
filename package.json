@@ -37,11 +37,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mjkid221/mcPal.git"
+    "url": "git+https://github.com/mjkid221/MCPal.git"
   },
-  "homepage": "https://github.com/mjkid221/mcPal#readme",
+  "homepage": "https://github.com/mjkid221/MCPal#readme",
   "bugs": {
-    "url": "https://github.com/mjkid221/mcPal/issues"
+    "url": "https://github.com/mjkid221/MCPal/issues"
   },
   "engines": {
     "node": ">=18.0.0"
