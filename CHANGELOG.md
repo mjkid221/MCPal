@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0](https://github.com/mjkid221/MCPal/compare/v1.2.16...v1.3.0) (2026-02-05)
+
+
+### Features
+
+* add release-please automation ([d8216e9](https://github.com/mjkid221/MCPal/commit/d8216e91a16162d218358ce51180d61d62ff5a12))
+
 ## [1.0.0] - 2025-02-04
 
 ### Added
