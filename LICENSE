@@ -1,6 +1,6 @@
-The MIT License (MIT)
+MIT License
 
-Copyright (c) 2022
+Copyright (c) 2025 MCPal Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,15 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+ASSET LICENSE EXCEPTION
+
+The MCPal logo, icon designs, and brand assets located in src/assets/
+(excluding src/assets/clients/) are NOT covered by the MIT License above.
+
+These assets are © 2025 All Rights Reserved and may not be used, copied,
+modified, or distributed without explicit written permission.
+
+This exception does not affect the MIT licensing of the source code.
