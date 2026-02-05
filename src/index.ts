@@ -84,11 +84,15 @@ server.registerTool(
 
       // Describe user's response
       if (result.activationType === "contentsClicked") {
-        parts.push(`The user clicked the notification. Curious one, aren't they?`);
+        parts.push(
+          `The user clicked the notification. Curious one, aren't they?`,
+        );
       } else if (result.activationType === "actionClicked") {
         parts.push(`The user clicked: ${result.response}. Decision made!`);
       } else if (result.activationType === "replied") {
-        parts.push(`The user replied: "${result.reply}". Look at us, having a conversation.`);
+        parts.push(
+          `The user replied: "${result.reply}". Look at us, having a conversation.`,
+        );
       } else if (result.response === "timeout") {
         parts.push(`The notification timed out. They're busy. We get it.`);
       } else if (result.response === "closed") {
