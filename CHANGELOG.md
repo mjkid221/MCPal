@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2](https://github.com/mjkid221/MCPal/compare/v1.3.1...v1.3.2) (2026-02-05)
+
+
+### Bug Fixes
+
+* fix app setup ([7752692](https://github.com/mjkid221/MCPal/commit/7752692b9f7cbfd326df9f1468a7515a53de43d6))
+
 ## [1.3.1](https://github.com/mjkid221/MCPal/compare/v1.3.0...v1.3.1) (2026-02-05)
 
 
