@@ -109,7 +109,7 @@ After the first notification, macOS may prompt you to allow notifications from "
 # Install dependencies
 pnpm install
 
-# Build
+# Build (required after clone - sets up macOS notification app)
 pnpm run build
 
 # Type check
