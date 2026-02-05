@@ -80,11 +80,6 @@ Client name mapping in `CLIENT_ICONS`:
 - `vscode` → `vscode.png`
 - `openai`, `chatgpt` → `openai.png`
 
-**Note**: Actual client names are logged to stderr for discovery:
-```
-[MCPal] Client: claude-code v1.0.0
-```
-
 ## App Bundle Customization
 
 macOS caches app metadata by **bundle path**, not plist contents. To show "MCPal" in System Preferences:
