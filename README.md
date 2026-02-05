@@ -17,6 +17,18 @@ Add to your MCP Config:
 }
 ```
 
+### Claude Code
+
+Add MCPal directly via the CLI:
+
+```bash
+# Project scope (current project only)
+claude mcp add mcpal -- npx -y mcpal
+
+# User scope (available in all projects)
+claude mcp add mcpal --scope user -- npx -y mcpal
+```
+
 ## Tool: `send_notification`
 
 Send native notifications with optional features.
