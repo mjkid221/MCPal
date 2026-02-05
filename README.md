@@ -1,6 +1,16 @@
-# MCPal
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f3803867-5b50-4cc6-baa5-1dfe372c7169" alt="MCPal" width="128" />
+</p>
 
-MCP server that sends native macOS notifications with support for action buttons, text replies, and LLM-aware icons.
+<h1 align="center">MCPal</h1>
+
+<p align="center">
+  MCP server that sends native macOS notifications with support for action buttons, text replies, and LLM-aware icons.
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5d113a38-f5b1-41de-be39-606e14a25b4f" alt="MCPal Notification" width="400" />
+</p>
 
 ## Usage
 
