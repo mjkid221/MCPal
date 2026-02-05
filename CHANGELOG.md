@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.5](https://github.com/mjkid221/MCPal/compare/v1.3.4...v1.3.5) (2026-02-05)
+
+
+### Bug Fixes
+
+* fix broken readme images ([11d852e](https://github.com/mjkid221/MCPal/commit/11d852edc9ab9d54e4d0e8c2d8236972e03d30de))
+
 ## [1.3.4](https://github.com/mjkid221/MCPal/compare/v1.3.3...v1.3.4) (2026-02-05)
 
 
