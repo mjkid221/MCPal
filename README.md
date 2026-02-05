@@ -45,13 +45,12 @@ claude mcp add mcpal --scope user -- npx -y mcpal
 MCPal includes built-in MCP instructions that tell Claude *how* to use notifications. To configure *when* Claude should proactively notify you, add this to your `CLAUDE.md`:
 
 ```markdown
-## Notifications
+## Post Task Completion Hook
 
-Use MCPal to notify me when:
+ALWAYS use MCPal MCP tool to notify me when you finish any tasks (this includes reading files, investigating, coding). You should use this tool before you terminate any conversations. Also notify when:
 - A long-running task completes (builds, tests, deployments)
 - You need my input or decision on something
 - You encounter an error that blocks progress
-- You finish a task and want to ask what's next
 
 Use `reply: true` when you need free-form input from me.
 ```
