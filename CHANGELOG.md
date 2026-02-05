@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1](https://github.com/mjkid221/MCPal/compare/v1.3.0...v1.3.1) (2026-02-05)
+
+
+### Bug Fixes
+
+* Update to use PAT token for NPM publish ([#20](https://github.com/mjkid221/MCPal/issues/20)) ([b0bb582](https://github.com/mjkid221/MCPal/commit/b0bb582c93b117fb97ea7e4c4a7e530cfa1c1eaf))
+
 ## [1.3.0](https://github.com/mjkid221/MCPal/compare/v1.2.16...v1.3.0) (2026-02-05)
 
 
