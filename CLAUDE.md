@@ -197,3 +197,12 @@ The user can type their response directly in the notification without switching 
 - **postinstall required**: `--ignore-scripts` will break macOS customizations
 - **MCP server restart**: After code changes, MCP server must restart to pick up changes
 - **Client names are guesses**: Actual names depend on what each MCP client sends
+
+## Post Task Completion Hook
+
+ALWAYS use MCPal MCP tool (if available) to notify me when you finish any tasks (this includes reading files, investigating, coding). You should use this tool before you terminate any conversations. Also notify when:
+- A long-running task completes (builds, tests, deployments)
+- You need my input or decision on something
+- You encounter an error that blocks progress
+
+Use `reply: true` when you need free-form input from me.
