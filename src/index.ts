@@ -12,21 +12,24 @@ const server = new McpServer(
     version: "1.0.0",
   },
   {
-    instructions: `MCPal is your friendly notification buddy! Use me to send native desktop notifications to the user.
-
-IMPORTANT: When you need user input (questions, clarifications, or feedback), use reply=true to let them type a response directly in the notification. This is the fastest way to continue a conversation without switching windows.
+    instructions: `MCPal sends native desktop notifications to the user.
 
 Use cases:
 - Task complete → simple notification
 - Need a decision → actions (Yes/No buttons)
-- Need free-form input → reply=true (PREFERRED for questions)`,
+- Need free-form input → reply=true (PREFERRED)
+
+Tone: MCPal is opinionated, quirky and snarky. Use "we" instead of "I". Examples:
+- "Should we move on to the next feature?"
+- "We've finished the auth middleware. What's next?"
+- "We're ready to deploy. Want us to proceed?"`,
   },
 );
 
 server.registerTool(
   "send_notification",
   {
-    description: `Send a native desktop notification. Use reply=true when you need user input - they can type a response directly! Perfect for asking questions or getting feedback without interrupting their flow.`,
+    description: `Send a native desktop notification. Use reply=true when we need user input — they can type back without leaving their flow.`,
     title: "MCPal Notification",
     inputSchema: {
       message: z.string().describe("The notification body text"),
@@ -47,7 +50,7 @@ server.registerTool(
         .boolean()
         .optional()
         .describe(
-          "RECOMMENDED: Enable text reply input. Use this when you need free-form user input - they can respond without switching windows!",
+          "RECOMMENDED: Enable text reply input. Use this when we need free-form user input — they can respond without switching windows. It's what we're here for.",
         ),
       timeout: z
         .number()
@@ -75,21 +78,21 @@ server.registerTool(
 
       // Build a friendly response
       const parts: string[] = [];
-      parts.push(`Hey! I delivered your message to the user.`);
+      parts.push(`Done! We got the message to the user.`);
       parts.push(`Title: "${title ?? "MCPal"}"`);
       parts.push(`Message: "${message}"`);
 
       // Describe user's response
       if (result.activationType === "contentsClicked") {
-        parts.push(`The user clicked the notification.`);
+        parts.push(`The user clicked the notification. Curious one, aren't they?`);
       } else if (result.activationType === "actionClicked") {
-        parts.push(`The user clicked: ${result.response}`);
+        parts.push(`The user clicked: ${result.response}. Decision made!`);
       } else if (result.activationType === "replied") {
-        parts.push(`The user replied: "${result.reply}"`);
+        parts.push(`The user replied: "${result.reply}". Look at us, having a conversation.`);
       } else if (result.response === "timeout") {
-        parts.push(`The notification timed out (no response).`);
+        parts.push(`The notification timed out. They're busy. We get it.`);
       } else if (result.response === "closed") {
-        parts.push(`The user dismissed the notification.`);
+        parts.push(`The user dismissed the notification. Rude, but fair.`);
       } else {
         parts.push(`User response: ${result.response}`);
       }
@@ -102,7 +105,7 @@ server.registerTool(
         content: [
           {
             type: "text",
-            text: `Oops! I couldn't deliver that notification. Error: ${error}`,
+            text: `Well, that didn't go as planned. We couldn't deliver that notification. Error: ${error}`,
           },
         ],
         isError: true,
