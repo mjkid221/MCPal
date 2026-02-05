@@ -5,7 +5,6 @@ import path from "path";
 
 const isMacOS = os.platform() === "darwin";
 
-// Get the package root directory
 const packageRoot = path.resolve(__dirname, "..");
 
 /**
@@ -79,7 +78,6 @@ function findAllNotifierDirs(): string[] {
           dirs.push(npmPath);
         }
 
-        // mcpal's node_modules in npx cache
         const mcpalPath = path.join(
           entryPath,
           "node_modules",
@@ -93,7 +91,6 @@ function findAllNotifierDirs(): string[] {
           dirs.push(mcpalPath);
         }
 
-        // pnpm structure in cache
         const pnpmDir = path.join(entryPath, "node_modules", ".pnpm");
         if (fs.existsSync(pnpmDir)) {
           try {
@@ -126,7 +123,16 @@ function findAllNotifierDirs(): string[] {
   return dirs;
 }
 
-// Get the path to the renamed MCPal.app notifier executable
+/**
+ * Get the path to the MCPal.app (or terminal-notifier.app) executable.
+ *
+ * Searches multiple locations to handle different installation methods:
+ * - Local node_modules (npm/yarn/pnpm)
+ * - npx cache (~/.npm/_npx)
+ * - pnpm dlx cache (~/Library/Caches/pnpm/dlx)
+ *
+ * @returns The path to the notifier executable, or undefined if not found
+ */
 export function getNotifierPath(): string | undefined {
   const notifierDirs = findAllNotifierDirs();
   const possiblePaths: string[] = [];
@@ -148,7 +154,10 @@ export function getNotifierPath(): string | undefined {
   return undefined;
 }
 
-// Map client names to icon filenames
+/**
+ * Mapping of MCP client names to their icon filenames.
+ * Keys are normalized client names (lowercase, hyphens instead of spaces).
+ */
 export const CLIENT_ICONS: Record<string, string> = {
   claude: "claude.png",
   "claude-desktop": "claude.png",
@@ -159,10 +168,29 @@ export const CLIENT_ICONS: Record<string, string> = {
   chatgpt: "openai.png",
 };
 
+/**
+ * Get the directory containing client icon assets.
+ * @returns Absolute path to the clients icon directory
+ */
 export function getClientsDir(): string {
   return path.resolve(__dirname, "assets", "clients");
 }
 
+/**
+ * Get the content image path for a given MCP client.
+ *
+ * The content image appears on the right side of macOS notifications,
+ * showing the logo of the LLM client that triggered the notification.
+ *
+ * @param clientName - The MCP client name (e.g., "claude-code", "cursor")
+ * @returns Absolute path to the client's icon, or undefined if not found or not on macOS
+ *
+ * @example
+ * ```ts
+ * const icon = getContentImageForClient("claude-code");
+ * // Returns: "/path/to/assets/clients/claude.png"
+ * ```
+ */
 export function getContentImageForClient(
   clientName?: string,
 ): string | undefined {
@@ -171,7 +199,6 @@ export function getContentImageForClient(
     return undefined;
   }
 
-  // Normalize client name (lowercase, no spaces)
   const normalized = clientName.toLowerCase().replace(/\s+/g, "-");
 
   // Check for exact match or partial match
@@ -187,30 +214,53 @@ export function getContentImageForClient(
   return fs.existsSync(iconPath) ? iconPath : undefined;
 }
 
-// Default timeouts (in seconds)
-const TIMEOUT_SIMPLE = 20; // Simple notification
-const TIMEOUT_ACTIONS = 30; // Notification with action buttons
-const TIMEOUT_REPLY = 60; // Notification with text reply input
+/** Default timeout for simple notifications (seconds) */
+const TIMEOUT_SIMPLE = 10;
+/** Default timeout for notifications with action buttons (seconds) */
+const TIMEOUT_ACTIONS = 30;
+/** Default timeout for notifications with text reply input (seconds) */
+const TIMEOUT_REPLY = 60;
 
+/**
+ * Options for sending a native notification.
+ */
 export interface NotifyOptions {
+  /** The notification body text */
   message: string;
+  /** The notification title */
   title: string;
+  /** Action buttons (e.g., ["Yes", "No"]). macOS only. */
   actions?: string[];
+  /** Label for the actions dropdown. Required when using multiple actions on macOS. */
   dropdownLabel?: string;
+  /** Enable text reply input. macOS only. */
   reply?: boolean;
+  /** Path to an image to display on the right side of the notification. macOS only. */
   contentImage?: string;
-  timeout?: number; // Custom timeout in seconds (overrides defaults)
+  /** Custom timeout in seconds. Defaults: 10s (simple), 30s (actions), 60s (reply). */
+  timeout?: number;
 }
 
+/**
+ * Result returned after a notification is dismissed or interacted with.
+ */
 export interface NotifyResult {
+  /** The response type or action clicked (e.g., "timeout", "closed", action label) */
   response: string;
+  /** The user's text reply, if `reply: true` was set and user responded */
   reply?: string;
+  /** How the user interacted: "contentsClicked", "actionClicked", "replied", etc. */
   activationType?: string;
 }
 
-// Create a notifier instance
-// On macOS: uses customPath pointing to our renamed MCPal.app
-// On other platforms: uses default node-notifier (Linux: notify-send, Windows: toast)
+/**
+ * Create a notifier instance configured for the current platform.
+ *
+ * On macOS, uses the custom MCPal.app bundle for branded notifications.
+ * On other platforms, uses the default node-notifier backend.
+ *
+ * @returns A configured NodeNotifier instance
+ */
 function getNotifier(): nodeNotifier.NodeNotifier {
   if (isMacOS) {
     const customPath = getNotifierPath();
@@ -224,20 +274,61 @@ function getNotifier(): nodeNotifier.NodeNotifier {
   return nodeNotifier;
 }
 
-// Determine appropriate timeout based on notification type
+/**
+ * Determine the appropriate timeout based on notification type.
+ *
+ * Reply notifications get the longest timeout (user needs time to type),
+ * action notifications get moderate timeout, simple notifications are quick.
+ *
+ * @param options - The notification options
+ * @returns Timeout in seconds
+ */
 function getTimeout(options: NotifyOptions): number {
   if (options.timeout !== undefined) {
-    return options.timeout; // User-specified timeout takes precedence
+    return options.timeout;
   }
   if (options.reply) {
-    return TIMEOUT_REPLY; // Reply needs most time (typing)
+    return TIMEOUT_REPLY;
   }
   if (options.actions && options.actions.length > 0) {
-    return TIMEOUT_ACTIONS; // Actions need moderate time
+    return TIMEOUT_ACTIONS;
   }
-  return TIMEOUT_SIMPLE; // Simple notifications are quick
+  return TIMEOUT_SIMPLE;
 }
 
+/**
+ * Send a native desktop notification and wait for user interaction.
+ *
+ * @param options - Notification configuration
+ * @returns Promise that resolves with the user's response
+ * @throws Error if the notification fails to send
+ *
+ * @example
+ * ```ts
+ * // Simple notification
+ * const result = await notify({
+ *   title: "Build Complete",
+ *   message: "Your project compiled successfully!"
+ * });
+ *
+ * // With reply input
+ * const result = await notify({
+ *   title: "Question",
+ *   message: "What should we name this file?",
+ *   reply: true
+ * });
+ * console.log(result.reply); // User's typed response
+ *
+ * // With action buttons
+ * const result = await notify({
+ *   title: "Deploy",
+ *   message: "Ready to deploy to production?",
+ *   actions: ["Deploy", "Cancel"],
+ *   dropdownLabel: "Choose"
+ * });
+ * console.log(result.response); // "Deploy" or "Cancel"
+ * ```
+ */
 export function notify(options: NotifyOptions): Promise<NotifyResult> {
   return new Promise((resolve, reject) => {
     const notificationOptions = {
