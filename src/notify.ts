@@ -5,61 +5,139 @@ import path from "path";
 
 const isMacOS = os.platform() === "darwin";
 
-// Find pnpm paths for node-notifier
-function findPnpmPaths(): string[] {
-  const projectRoot = path.resolve(__dirname, "..");
-  const pnpmDir = path.join(projectRoot, "node_modules", ".pnpm");
-  if (!fs.existsSync(pnpmDir)) {
-    return [];
+// Get the package root directory
+const packageRoot = path.resolve(__dirname, "..");
+
+/**
+ * Find all potential mac.noindex directories containing terminal-notifier.app or MCPal.app.
+ * Searches local node_modules and npx cache directories.
+ */
+function findAllNotifierDirs(): string[] {
+  const dirs: string[] = [];
+
+  // 1. Local node_modules (npm/yarn)
+  dirs.push(
+    path.join(
+      packageRoot,
+      "node_modules",
+      "node-notifier",
+      "vendor",
+      "mac.noindex",
+    ),
+  );
+
+  // 2. Local node_modules (pnpm)
+  const localPnpmDir = path.join(packageRoot, "node_modules", ".pnpm");
+  if (fs.existsSync(localPnpmDir)) {
+    try {
+      const entries = fs.readdirSync(localPnpmDir);
+      const nodeNotifierDir = entries.find((e) =>
+        e.startsWith("node-notifier@"),
+      );
+      if (nodeNotifierDir) {
+        dirs.push(
+          path.join(
+            localPnpmDir,
+            nodeNotifierDir,
+            "node_modules",
+            "node-notifier",
+            "vendor",
+            "mac.noindex",
+          ),
+        );
+      }
+    } catch {
+      // Ignore errors
+    }
   }
 
-  try {
-    const entries = fs.readdirSync(pnpmDir);
-    const nodeNotifierDir = entries.find((e) => e.startsWith("node-notifier@"));
-    if (nodeNotifierDir) {
-      return [
-        path.join(
-          pnpmDir,
-          nodeNotifierDir,
+  // 3. npx cache locations
+  const npxCacheDirs = [
+    path.join(os.homedir(), ".npm", "_npx"),
+    path.join(os.homedir(), "Library", "Caches", "pnpm", "dlx"),
+  ];
+
+  for (const cacheDir of npxCacheDirs) {
+    if (!fs.existsSync(cacheDir)) {
+      continue;
+    }
+
+    try {
+      const cacheEntries = fs.readdirSync(cacheDir);
+      for (const entry of cacheEntries) {
+        const entryPath = path.join(cacheDir, entry);
+
+        // npm structure: node_modules/node-notifier/vendor/mac.noindex
+        const npmPath = path.join(
+          entryPath,
           "node_modules",
           "node-notifier",
           "vendor",
           "mac.noindex",
-        ),
-      ];
+        );
+        if (fs.existsSync(npmPath)) {
+          dirs.push(npmPath);
+        }
+
+        // mcpal's node_modules in npx cache
+        const mcpalPath = path.join(
+          entryPath,
+          "node_modules",
+          "mcpal",
+          "node_modules",
+          "node-notifier",
+          "vendor",
+          "mac.noindex",
+        );
+        if (fs.existsSync(mcpalPath)) {
+          dirs.push(mcpalPath);
+        }
+
+        // pnpm structure in cache
+        const pnpmDir = path.join(entryPath, "node_modules", ".pnpm");
+        if (fs.existsSync(pnpmDir)) {
+          try {
+            const pnpmEntries = fs.readdirSync(pnpmDir);
+            const nodeNotifierDir = pnpmEntries.find((e) =>
+              e.startsWith("node-notifier@"),
+            );
+            if (nodeNotifierDir) {
+              dirs.push(
+                path.join(
+                  pnpmDir,
+                  nodeNotifierDir,
+                  "node_modules",
+                  "node-notifier",
+                  "vendor",
+                  "mac.noindex",
+                ),
+              );
+            }
+          } catch {
+            // Ignore errors
+          }
+        }
+      }
+    } catch {
+      // Ignore errors reading cache directories
     }
-  } catch {
-    // Ignore errors
   }
-  return [];
+
+  return dirs;
 }
 
 // Get the path to the renamed MCPal.app notifier executable
 export function getNotifierPath(): string | undefined {
-  const projectRoot = path.resolve(__dirname, "..");
-  const possiblePaths = [
-    // pnpm - check for MCPal.app first
-    ...findPnpmPaths().map((p) => path.join(p, "MCPal.app")),
-    // npm/yarn - check for MCPal.app first
-    path.join(
-      projectRoot,
-      "node_modules",
-      "node-notifier",
-      "vendor",
-      "mac.noindex",
-      "MCPal.app",
-    ),
-    // Fallback to terminal-notifier.app (before rename)
-    ...findPnpmPaths().map((p) => path.join(p, "terminal-notifier.app")),
-    path.join(
-      projectRoot,
-      "node_modules",
-      "node-notifier",
-      "vendor",
-      "mac.noindex",
-      "terminal-notifier.app",
-    ),
-  ];
+  const notifierDirs = findAllNotifierDirs();
+  const possiblePaths: string[] = [];
+
+  // For each directory, check MCPal.app first, then terminal-notifier.app as fallback
+  for (const dir of notifierDirs) {
+    possiblePaths.push(path.join(dir, "MCPal.app"));
+  }
+  for (const dir of notifierDirs) {
+    possiblePaths.push(path.join(dir, "terminal-notifier.app"));
+  }
 
   for (const p of possiblePaths) {
     const execPath = path.join(p, "Contents", "MacOS", "terminal-notifier");
