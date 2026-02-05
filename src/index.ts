@@ -12,7 +12,7 @@ const server = new McpServer(
     version: "1.0.0",
   },
   {
-    instructions: `MCPal sends native desktop notifications to the user.
+    instructions: `MCPal sends a friendly native desktop notifications to the user.
 
 Use cases:
 - Task complete → simple notification
