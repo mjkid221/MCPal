@@ -5,7 +5,7 @@
 <h1 align="center">MCPal</h1>
 
 <p align="center">
-  MCP server for native macOS notifications with action buttons, text replies, and LLM-aware icons.<br/>
+  MCP server for native desktop notifications with action buttons, text replies, and LLM-aware icons.<br/>
   Built for <strong>Claude Code</strong> and <strong>Claude Desktop</strong>. Compatible with any MCP client.
 </p>
 
@@ -139,11 +139,11 @@ rm temp.png
 
 ## Custom App Icon
 
-The package includes a custom notification icon that replaces the default Terminal icon on macOS. This is automatically configured during installation via the `postinstall` script.
+The package includes a custom notification icon that replaces the default Terminal icon on desktop. This is automatically configured during installation via the `postinstall` script.
 
 ### Notification Permissions
 
-After the first notification, macOS may prompt you to allow notifications from "MCPal". You can manage this in:
+After the first notification, your system may prompt you to allow notifications from "MCPal". You can manage this in:
 
 **System Settings > Notifications > MCPal**
 
@@ -153,7 +153,7 @@ After the first notification, macOS may prompt you to allow notifications from "
 # Install dependencies
 pnpm install
 
-# Build (required after clone - sets up macOS notification app)
+# Build (required after clone - sets up desktop notification app)
 pnpm run build
 
 # Type check
