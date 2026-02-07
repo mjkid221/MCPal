@@ -187,6 +187,14 @@ This opens a web UI where you can:
 - Send test notifications with different parameters
 - See raw MCP protocol messages
 
+### Local Dev Troubleshooting
+
+If you run a local build directly from `dist/index.js` and notifications are not working, make sure the entrypoint is executable:
+
+```bash
+chmod +x dist/index.js
+```
+
 ### Testing Notifications
 
 Test the notification system directly without running the MCP server:
