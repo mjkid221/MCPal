@@ -46,12 +46,14 @@ export function getNotifierPath(): string | undefined {
  */
 export const CLIENT_ICONS: Record<string, string> = {
   claude: "claude.png",
+  opus: "claude.png",
   "claude-desktop": "claude.png",
   "claude-code": "claude.png",
   cursor: "cursor.png",
   vscode: "vscode.png",
   openai: "openai.png",
   chatgpt: "openai.png",
+  codex: "openai.png",
 };
 
 /**
