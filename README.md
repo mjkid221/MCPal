@@ -50,7 +50,7 @@ claude mcp add mcpal --scope user -- npx -y mcpal
 
 ### Configuring Proactive Notifications
 
-MCPal includes built-in MCP instructions that tell clients *how* to use notifications. To configure *when* your assistant should proactively notify you, add this to your client instruction file. For Claude Code, that file is `CLAUDE.md`:
+MCPal includes built-in MCP instructions that tell clients *how* to use notifications. To configure *when* your assistant should proactively notify you, add this to your client instruction file. This should either be `AGENTS.md` or `CLAUDE.md` based on your model:
 
 ```markdown
 ## Post Task Completion Hook
