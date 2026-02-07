@@ -4,6 +4,7 @@ import os from "os";
 import path from "path";
 
 import { findAllNotifierBaseDirs } from "./notifier-paths";
+import type { NotifyOptions, NotifyResult } from "./notify.types";
 
 const isMacOS = os.platform() === "darwin";
 
@@ -41,19 +42,26 @@ export function getNotifierPath(): string | undefined {
 }
 
 /**
- * Mapping of MCP client names to their icon filenames.
+ * Mapping of MCP client names to their icon filenames. This doesn't need to be exact matches,
+ * just a way to associate known clients with icons. The keys are normalized client names
+ * (lowercase, hyphens instead of spaces) to allow for flexible matching.
  * Keys are normalized client names (lowercase, hyphens instead of spaces).
  */
 export const CLIENT_ICONS: Record<string, string> = {
+  // Anthropic
   claude: "claude.png",
-  opus: "claude.png",
   "claude-desktop": "claude.png",
   "claude-code": "claude.png",
-  cursor: "cursor.png",
-  vscode: "vscode.png",
+  opus: "claude.png",
+
+  // Openai
   openai: "openai.png",
   chatgpt: "openai.png",
   codex: "openai.png",
+
+  // Misc
+  cursor: "cursor.png",
+  vscode: "vscode.png",
 };
 
 /**
@@ -108,38 +116,7 @@ const TIMEOUT_SIMPLE = 10;
 const TIMEOUT_ACTIONS = 30;
 /** Default timeout for notifications with text reply input (seconds) */
 const TIMEOUT_REPLY = 60;
-
-/**
- * Options for sending a native notification.
- */
-export interface NotifyOptions {
-  /** The notification body text */
-  message: string;
-  /** The notification title */
-  title: string;
-  /** Action buttons (e.g., ["Yes", "No"]). macOS only. */
-  actions?: string[];
-  /** Label for the actions dropdown. Required when using multiple actions on macOS. */
-  dropdownLabel?: string;
-  /** Enable text reply input. macOS only. */
-  reply?: boolean;
-  /** Path to an image to display on the right side of the notification. macOS only. */
-  contentImage?: string;
-  /** Custom timeout in seconds. Defaults: 10s (simple), 30s (actions), 60s (reply). */
-  timeout?: number;
-}
-
-/**
- * Result returned after a notification is dismissed or interacted with.
- */
-export interface NotifyResult {
-  /** The response type or action clicked (e.g., "timeout", "closed", action label) */
-  response: string;
-  /** The user's text reply, if `reply: true` was set and user responded */
-  reply?: string;
-  /** How the user interacted: "contentsClicked", "actionClicked", "replied", etc. */
-  activationType?: string;
-}
+export type { NotifyOptions, NotifyResult } from "./notify.types";
 
 /**
  * Create a notifier instance configured for the current platform.
