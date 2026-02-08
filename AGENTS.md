@@ -139,8 +139,8 @@ npx @modelcontextprotocol/inspector node dist/index.js
 Edit constants in `src/notify.ts`:
 ```typescript
 const TIMEOUT_SIMPLE = 10;  // seconds
-const TIMEOUT_ACTIONS = 30;
-const TIMEOUT_REPLY = 60;
+const TIMEOUT_ACTIONS = 20;
+const TIMEOUT_REPLY = 30;
 ```
 
 ### Update MCP tool schema

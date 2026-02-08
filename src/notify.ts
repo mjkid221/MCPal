@@ -130,9 +130,9 @@ export function getContentImageForClient(
 /** Default timeout for simple notifications (seconds) */
 const TIMEOUT_SIMPLE = 10;
 /** Default timeout for notifications with action buttons (seconds) */
-const TIMEOUT_ACTIONS = 30;
+const TIMEOUT_ACTIONS = 20;
 /** Default timeout for notifications with text reply input (seconds) */
-const TIMEOUT_REPLY = 60;
+const TIMEOUT_REPLY = 30;
 export type { NotifyOptions, NotifyResult } from "./notify.types";
 
 /**
