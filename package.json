@@ -11,6 +11,8 @@
     "dist/index.d.ts",
     "dist/notify.js",
     "dist/notify.d.ts",
+    "dist/notify.types.js",
+    "dist/notify.types.d.ts",
     "dist/notifier-paths.js",
     "dist/notifier-paths.d.ts",
     "dist/scripts/setup-notifier.js",

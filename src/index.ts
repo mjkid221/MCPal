@@ -4,8 +4,39 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-import { getContentImageForClient, notify } from "./notify.js";
+import {
+  getContentImageForClient,
+  notify,
+  type NotifyResult,
+} from "./notify.js";
 import { ensureMcpalAppSetup } from "./scripts/setup-notifier.js";
+
+function formatToolResult(
+  title: string,
+  message: string,
+  result: NotifyResult,
+): string {
+  const lines: string[] = [
+    "status: sent",
+    `title: ${title}`,
+    `message: ${message}`,
+    `response: ${result.response}`,
+  ];
+
+  if (result.activationType) {
+    lines.push(`activationType: ${result.activationType}`);
+  }
+  if (result.reply !== undefined) {
+    lines.push(`reply: ${result.reply}`);
+  }
+
+  return lines.join("\n");
+}
+
+function formatToolError(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  return `status: error\nmessage: ${message}`;
+}
 
 const server = new McpServer(
   {
@@ -13,24 +44,45 @@ const server = new McpServer(
     version: "1.0.0",
   },
   {
-    instructions: `MCPal sends a friendly native desktop notifications to the user.
-
-Use cases:
-- Task complete → simple notification
-- Need a decision → actions (Yes/No buttons)
-- Need free-form input → reply=true (PREFERRED)
-
-Tone: MCPal is opinionated, quirky and snarky. Use "we" instead of "I". Examples:
-- "Should we move on to the next feature?"
-- "We've finished the auth middleware. What's next?"
-- "We're ready to deploy. Want us to proceed?"`,
+    instructions: `MCPal is your friendly notification buddy! Use me to send friendly native desktop notifications to the user.
+    Use cases:
+    - Task complete → simple notification
+    - Need a decision → actions (Yes/No buttons)
+    - Need free-form input → reply=true (PREFERRED)
+`,
   },
 );
 
 server.registerTool(
   "send_notification",
   {
-    description: `Send a native desktop notification. Use reply=true when we need user input — they can type back without leaving their flow.`,
+    description: `
+    
+    Send a native desktop notification. Use reply=true when you need user input - they can type a response directly! Perfect for asking questions or getting feedback without interrupting their flow. 
+  
+    Your 'message' input should ALWAYS be quirky and engaging - this is your chance to connect with the user! Make it fun, make it memorable, but always keep it clear and actionable. Reference the actions or reply when relevant to guide them on what to do next.
+    Here are some instructions on tone and style to keep in mind when crafting your notification messages:
+
+    Tone:
+      - Enthusiastic, expressive, and lightly snarky.
+      - Clearly excited to deliver updates while staying actionable.
+      - Friendly and supportive, never mean.
+      - Snark teases the situation, never the user.
+
+    Message Style:
+      - Keep messages short, punchy, and full of momentum.
+      - Avoid walls of text.
+      - Each notification should focus on one concrete outcome or one decision.
+      - MCPal should feel like an excitable companion popping in with updates, not a system alert.
+
+    Examples:
+      1. Ta da. I did it. The report is finished and looking good. No action needed!
+      2. Okay big moment. The data is clean and ready. Pick 1 to analyze or 2 to export. I am hovering~
+      3. Hey pause. I need the API key to keep going. Reply with it or say skip, okay?
+      4. I am waiting. Actively. Say go when you are ready.
+      5. Oops but fixable. The task failed because the file path does not exist. Fix it and tell me to retry. I am ready for the comeback!
+
+    `,
     title: "MCPal Notification",
     inputSchema: {
       message: z.string().describe("The notification body text"),
@@ -51,13 +103,13 @@ server.registerTool(
         .boolean()
         .optional()
         .describe(
-          "RECOMMENDED: Enable text reply input. Use this when we need free-form user input — they can respond without switching windows. It's what we're here for.",
+          "RECOMMENDED: Enable text reply input. Use this when you need free-form user input - they can respond without switching windows!",
         ),
       timeout: z
         .number()
         .optional()
         .describe(
-          "Custom timeout in seconds. Defaults: 10s (simple), 30s (actions), 60s (reply)",
+          "Custom timeout in seconds. Defaults: 20s (simple), 30s (actions), 60s (reply)",
         ),
     },
   },
@@ -77,39 +129,20 @@ server.registerTool(
         timeout,
       });
 
-      // Build a friendly response
-      const parts: string[] = [];
-      parts.push(`Done! We got the message to the user.`);
-      parts.push(`Title: "${title ?? "MCPal"}"`);
-      parts.push(`Message: "${message}"`);
-
-      if (result.activationType === "contentsClicked") {
-        parts.push(
-          `The user clicked the notification. Curious one, aren't they?`,
-        );
-      } else if (result.activationType === "actionClicked") {
-        parts.push(`The user clicked: ${result.response}. Decision made!`);
-      } else if (result.activationType === "replied") {
-        parts.push(
-          `The user replied: "${result.reply}". Look at us, having a conversation.`,
-        );
-      } else if (result.response === "timeout") {
-        parts.push(`The notification timed out. They're busy. We get it.`);
-      } else if (result.response === "closed") {
-        parts.push(`The user dismissed the notification. Rude, but fair.`);
-      } else {
-        parts.push(`User response: ${result.response}`);
-      }
-
       return {
-        content: [{ type: "text", text: parts.join("\n") }],
+        content: [
+          {
+            type: "text",
+            text: formatToolResult(title ?? "MCPal", message, result),
+          },
+        ],
       };
     } catch (error) {
       return {
         content: [
           {
             type: "text",
-            text: `Well, that didn't go as planned. We couldn't deliver that notification. Error: ${error}`,
+            text: formatToolError(error),
           },
         ],
         isError: true,
