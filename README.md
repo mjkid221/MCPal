@@ -5,7 +5,7 @@
 <h1 align="center">MCPal</h1>
 
 <p align="center">
-  MCP server for native desktop notifications with action buttons, text replies, and LLM-aware icons.<br/>
+  Lightweight MCP server for native desktop notifications with action buttons, text replies, and LLM-aware icons.<br/>
   Compatible with any MCP client.
 </p>
 
@@ -15,17 +15,23 @@
 
 ## Usage
 
-Add to your MCP Config:
+Add to your MCP Config Manually:
 
 ```json
+// JSON
 {
   "mcpServers": {
     "mcpal": {
       "command": "npx",
-      "args": ["mcpal"]
+      "args": ["mcpal@latest"]
     }
   }
 }
+
+// Or TOML
+[mcp_servers.mcpal]
+command = "npx"
+args = ["-y", "mcpal@latest"]
 ```
 
 ### Codex CLI
@@ -33,7 +39,7 @@ Add to your MCP Config:
 Add MCPal directly via the CLI:
 
 ```bash
-codex mcp add mcpal -- npx -y mcpal
+codex mcp add mcpal -- npx -y mcpal@latest
 ```
 
 ### Claude Code
@@ -42,10 +48,10 @@ Add MCPal directly via the CLI:
 
 ```bash
 # Project scope (current project only)
-claude mcp add mcpal -- npx -y mcpal
+claude mcp add mcpal -- npx -y mcpal@latest
 
 # User scope (available in all projects)
-claude mcp add mcpal --scope user -- npx -y mcpal
+claude mcp add mcpal --scope user -- npx -y mcpal@latest
 ```
 
 ### Configuring Proactive Notifications
@@ -55,12 +61,7 @@ MCPal includes built-in MCP instructions that tell clients *how* to use notifica
 ```markdown
 ## Post Task Completion Hook
 
-ALWAYS use MCPal MCP tool to notify me when you finish any tasks (this includes reading files, investigating, coding). You should use this tool before you terminate any conversations. Also notify when:
-- A long-running task completes (builds, tests, deployments)
-- You need my input or decision on something
-- You encounter an error that blocks progress
-
-Use `reply: true` when you need free-form input from me.
+ALWAYS use MCPal MCP tool (if available) to notify me when you finish any tasks (this includes reading files, investigating, coding). You should use this tool before you terminate conversations. Refer to tool instructions precisely to craft your response.
 ```
 
 Customize this based on your preferences - some users want frequent updates, others only want notifications for important decisions.
