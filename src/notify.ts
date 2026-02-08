@@ -73,6 +73,23 @@ export function getClientsDir(): string {
 }
 
 /**
+ * Get the directory containing MCPal icon assets.
+ * @returns Absolute path to the icons directory
+ */
+export function getIconsDir(): string {
+  return path.resolve(__dirname, "assets", "icons");
+}
+
+/**
+ * Get the bundled MCPal PNG icon path.
+ * @returns Absolute path to mcpal.png, or undefined if unavailable
+ */
+export function getMcpalIconPath(): string | undefined {
+  const iconPath = path.join(getIconsDir(), "mcpal.png");
+  return fs.existsSync(iconPath) ? iconPath : undefined;
+}
+
+/**
  * Get the content image path for a given MCP client.
  *
  * The content image appears on the right side of macOS notifications,
@@ -126,16 +143,14 @@ export type { NotifyOptions, NotifyResult } from "./notify.types";
  *
  * @returns A configured NodeNotifier instance
  */
-function getNotifier(): nodeNotifier.NodeNotifier {
+function getNotifier() {
   if (isMacOS) {
     const customPath = getNotifierPath();
     if (customPath) {
-      // Create a NotificationCenter instance with customPath in constructor options
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return new (nodeNotifier as any).NotificationCenter({ customPath });
+      return new nodeNotifier.NotificationCenter({ customPath });
     }
   }
-  // On non-macOS or if customPath not found, use default notifier
+  // Fallback to default notifier
   return nodeNotifier;
 }
 
@@ -201,10 +216,11 @@ export function notify(options: NotifyOptions): Promise<NotifyResult> {
       message: options.message,
       wait: true,
       timeout: getTimeout(options),
+      icon: getMcpalIconPath(),
       actions: options.actions,
       dropdownLabel: options.dropdownLabel,
       reply: options.reply,
-      ...(options.contentImage && { contentImage: options.contentImage }),
+      contentImage: options.contentImage,
     };
 
     getNotifier().notify(notificationOptions, (err, response, metadata) => {

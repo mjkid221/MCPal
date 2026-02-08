@@ -27,7 +27,9 @@ src/
 ├── index.ts              # MCP server entry point, tool registration
 ├── notify.ts             # Core notification logic, client icon detection
 ├── assets/
-│   ├── mcpal.icns        # App bundle icon (left side of notification)
+│   ├── icons/            # MCPal app + notification icons
+│   │   ├── mcpal.icns    # App bundle icon (left side of notification)
+│   │   └── mcpal.png     # Notification icon (`icon` field)
 │   └── clients/          # LLM client logos (right side of notification)
 │       └── claude.png
 └── scripts/
@@ -41,11 +43,12 @@ src/
 - Creates `McpServer` with name "mcpal"
 - Registers `send_notification` tool with Zod schema
 - Gets client info via `server.server.getClientVersion()` for icon detection
-- Returns friendly responses describing user's action
+- Returns deterministic tool-result status lines for LLM consumption
 
 ### src/notify.ts
 - `notify()` - Main function that sends notifications
 - `getContentImageForClient()` - Maps client names to icon files
+- `getMcpalIconPath()` - Resolves bundled notification icon (`assets/icons/mcpal.png`)
 - `getNotifierPath()` - Finds the renamed MCPal.app executable
 - `getNotifier()` - Creates NotificationCenter with custom path
 - Timeout constants: `TIMEOUT_SIMPLE`, `TIMEOUT_ACTIONS`, `TIMEOUT_REPLY`
@@ -200,9 +203,4 @@ The user can type their response directly in the notification without switching 
 
 ## Post Task Completion Hook
 
-ALWAYS use MCPal MCP tool (if available) to notify me when you finish any tasks (this includes reading files, investigating, coding). You should use this tool before you terminate any conversations. Also notify when:
-- A long-running task completes (builds, tests, deployments)
-- You need my input or decision on something
-- You encounter an error that blocks progress
-
-Use `reply: true` when you need free-form input from me.
+ALWAYS use MCPal MCP tool (if available) to notify me when you finish any tasks (this includes reading files, investigating, coding). You should use this tool before you terminate any conversations. Refer to tool instructions precisely to craft your response.

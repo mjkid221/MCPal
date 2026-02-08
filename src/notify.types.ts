@@ -6,6 +6,8 @@ export interface NotifyOptions {
   message: string;
   /** The notification title */
   title: string;
+  /** Absolute path to notification icon image. */
+  icon?: string;
   /** Action buttons (e.g., ["Yes", "No"]). macOS only. */
   actions?: string[];
   /** Label for the actions dropdown. Required when using multiple actions on macOS. */
