@@ -46,12 +46,12 @@ function findNotifierApp(): { path: string; isRenamed: boolean } | null {
  */
 function findIconSource(): string | null {
   const possiblePaths = [
-    // Development: src/assets/mcpal.icns
-    path.join(packageRoot, "src", "assets", "mcpal.icns"),
-    // Built/installed: dist/assets/mcpal.icns
-    path.join(packageRoot, "dist", "assets", "mcpal.icns"),
+    // Development: src/assets/icons/mcpal.icns
+    path.join(packageRoot, "src", "assets", "icons", "mcpal.icns"),
+    // Built/installed: dist/assets/icons/mcpal.icns
+    path.join(packageRoot, "dist", "assets", "icons", "mcpal.icns"),
     // Relative to this script in dist
-    path.join(__dirname, "..", "assets", "mcpal.icns"),
+    path.join(__dirname, "..", "assets", "icons", "mcpal.icns"),
   ];
 
   for (const p of possiblePaths) {

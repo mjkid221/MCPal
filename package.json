@@ -7,13 +7,24 @@
     "mcpal": "dist/index.js"
   },
   "files": [
-    "dist/",
-    "src/assets/"
+    "dist/index.js",
+    "dist/index.d.ts",
+    "dist/notify.js",
+    "dist/notify.d.ts",
+    "dist/notify.types.js",
+    "dist/notify.types.d.ts",
+    "dist/notifier-paths.js",
+    "dist/notifier-paths.d.ts",
+    "dist/scripts/setup-notifier.js",
+    "dist/scripts/setup-notifier.d.ts",
+    "dist/assets/",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "postinstall": "node -e \"try{require('./dist/scripts/setup-notifier.js')}catch(e){console.log('Skipping setup (run pnpm build first)')}\"",
     "test:notification": "node dist/scripts/test-notification.js",
-    "build": "tsc && cp -r src/assets dist/ && node dist/scripts/setup-notifier.js",
+    "build": "tsc -p tsconfig.build.json && cp -r src/assets dist/ && node dist/scripts/setup-notifier.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
@@ -30,6 +41,7 @@
     "linux",
     "windows",
     "claude",
+    "codex",
     "llm",
     "desktop-notifications"
   ],

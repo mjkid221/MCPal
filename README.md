@@ -6,7 +6,7 @@
 
 <p align="center">
   MCP server for native desktop notifications with action buttons, text replies, and LLM-aware icons.<br/>
-  Built for <strong>Claude Code</strong> and <strong>Claude Desktop</strong>. Compatible with any MCP client.
+  Compatible with any MCP client.
 </p>
 
 <p align="center">
@@ -28,6 +28,14 @@ Add to your MCP Config:
 }
 ```
 
+### Codex CLI
+
+Add MCPal directly via the CLI:
+
+```bash
+codex mcp add mcpal -- npx -y mcpal
+```
+
 ### Claude Code
 
 Add MCPal directly via the CLI:
@@ -40,9 +48,9 @@ claude mcp add mcpal -- npx -y mcpal
 claude mcp add mcpal --scope user -- npx -y mcpal
 ```
 
-### Configuring Proactive Notifications (Claude)
+### Configuring Proactive Notifications
 
-MCPal includes built-in MCP instructions that tell Claude *how* to use notifications. To configure *when* Claude should proactively notify you, add this to your `CLAUDE.md`:
+MCPal includes built-in MCP instructions that tell clients *how* to use notifications. To configure *when* your assistant should proactively notify you, add this to your client instruction file. This should either be `AGENTS.md` or `CLAUDE.md` based on your model:
 
 ```markdown
 ## Post Task Completion Hook
@@ -106,14 +114,14 @@ Send native notifications with optional features.
 
 ## LLM-Aware Icons
 
-MCPal detects which MCP client is calling the tool and displays the appropriate icon in notifications. Currently tested with Claude Code and Claude Desktop:
+MCPal detects which MCP client is calling the tool and displays the appropriate icon in notifications.
 
 | Client | Icon |
 |--------|------|
-| Claude Desktop / Claude Code | Claude logo |
+| Claude Desktop / Claude Code / Opus | Claude logo |
+| Codex / OpenAI / ChatGPT | OpenAI logo |
 | Cursor | Cursor logo |
 | VS Code | VS Code logo |
-| OpenAI / ChatGPT | OpenAI logo |
 | Unknown | No icon |
 
 This works via the MCP protocol's client identification - each client sends its name during initialization.
@@ -178,6 +186,14 @@ This opens a web UI where you can:
 - View available tools and their schemas
 - Send test notifications with different parameters
 - See raw MCP protocol messages
+
+### Local Dev Troubleshooting
+
+If you run a local build directly from `dist/index.js` and notifications are not working, make sure the entrypoint is executable:
+
+```bash
+chmod +x dist/index.js
+```
 
 ### Testing Notifications
 
