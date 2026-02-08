@@ -15,8 +15,7 @@
 
 ## Usage
 
-Add to your MCP Config Manually:
-
+Add to your MCP Config manually:
 ```json
 // JSON
 {
@@ -27,13 +26,14 @@ Add to your MCP Config Manually:
     }
   }
 }
-
-// Or TOML
+```
+Or TOML (Codex):
+```toml
+// TOML
 [mcp_servers.mcpal]
 command = "npx"
 args = ["-y", "mcpal@latest"]
 ```
-
 ### Codex CLI
 
 Add MCPal directly via the CLI:
