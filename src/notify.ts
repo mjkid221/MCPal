@@ -216,7 +216,7 @@ export function notify(options: NotifyOptions): Promise<NotifyResult> {
       message: options.message,
       wait: true,
       timeout: getTimeout(options),
-      icon: getMcpalIconPath(),
+      icon: options.icon ?? getMcpalIconPath(),
       actions: options.actions,
       dropdownLabel: options.dropdownLabel,
       reply: options.reply,
