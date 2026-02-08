@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.7](https://github.com/mjkid221/MCPal/compare/v1.3.6...v1.3.7) (2026-02-08)
+
+
+### Bug Fixes
+
+* add mcpal icon image ([c953b4d](https://github.com/mjkid221/MCPal/commit/c953b4dfca19aadca69e4fc4b9e78fc18bfb983b))
+* reduce timeouts ([837a587](https://github.com/mjkid221/MCPal/commit/837a5878faf9cd4d0d077f49e26aa9de4a87266e))
+* update instruction to contain mcpal character traits ([68fe58c](https://github.com/mjkid221/MCPal/commit/68fe58c1600fb3564c31aa4364c96574da089e98))
+
+
+### Performance Improvements
+
+* compressed icns ([04aa31e](https://github.com/mjkid221/MCPal/commit/04aa31e76ebd7d7e32f75412d08e6e0756b3348b))
+
 ## [1.3.6](https://github.com/mjkid221/MCPal/compare/v1.3.5...v1.3.6) (2026-02-06)
 
 
