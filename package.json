@@ -22,7 +22,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "postinstall": "node -e \"try{require('./dist/scripts/setup-notifier.js')}catch(e){console.log('Skipping setup (run pnpm build first)')}\"",
+    "postinstall": "node -e \"try{require('./dist/scripts/setup-notifier.js').ensureMcpalAppSetup().catch(function(){})}catch(e){}\"",
     "test:notification": "node dist/scripts/test-notification.js",
     "build": "tsc -p tsconfig.build.json && cp -r src/assets dist/ && node dist/scripts/setup-notifier.js",
     "test": "echo \"Error: no test specified\" && exit 1",

@@ -16,6 +16,15 @@ import path from "path";
 export function findAllNotifierBaseDirs(packageRoot: string): string[] {
   const dirs: string[] = [];
 
+  // 0. Use Node's module resolution (handles hoisting, pnpm symlinks, etc.)
+  try {
+    const nodeNotifierPkg = require.resolve("node-notifier/package.json");
+    const nodeNotifierRoot = path.dirname(nodeNotifierPkg);
+    dirs.push(path.join(nodeNotifierRoot, "vendor", "mac.noindex"));
+  } catch {
+    // node-notifier not resolvable from this context
+  }
+
   // 1. Local node_modules (npm/yarn)
   dirs.push(
     path.join(
