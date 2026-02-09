@@ -79,7 +79,7 @@ Send native notifications with optional features.
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `message` | string | Yes | The notification body text |
-| `title` | string | No | The notification title (default: "Notification") |
+| `title` | string | No | The notification title (default: "MCPal") |
 | `actions` | string[] | No | Action buttons (e.g., `["Yes", "No", "Maybe"]`) |
 | `dropdownLabel` | string | No | Label for actions dropdown (required for multiple actions) |
 | `reply` | boolean | No | Enable text reply input |
@@ -112,6 +112,45 @@ Send native notifications with optional features.
   "reply": true
 }
 ```
+
+### Tool Result Contract
+
+`send_notification` now returns a dual contract:
+
+- Canonical machine output via `structuredContent` (recommended for parsing)
+- Backward-compatible text output in `content[0].text`
+
+Structured fields:
+
+- `status`: `"sent"` or `"error"`
+- `title?`: Notification title
+- `message?`: Message actually sent after sanitization
+- `response?`: Notification response (`"timeout"`, clicked action, etc.)
+- `activationType?`: Activation source (`"replied"`, `"actionClicked"`, etc.)
+- `reply?`: User free-form reply
+- `error?`: Error message when `status` is `"error"`
+- `sanitized?`: `true` when MCPal had to sanitize or truncate inputs
+
+Legacy text is still line-based, but each value is JSON-encoded on a single line for parser safety, for example:
+
+```text
+status: "sent"
+title: "MCPal"
+message: "Line 1\nLine 2"
+response: "timeout"
+```
+
+### Input Sanitization
+
+Before delivery, MCPal applies best-effort sanitization to reduce notifier/parser failures:
+
+- Normalize line endings: `\r\n` / `\r` -> `\n`
+- Remove unsafe control chars (keeps `\n` and `\t`)
+- Truncate limits:
+  - `title`: 256 chars
+  - `message`: 4000 chars
+  - `actions`: max 3 items, each 64 chars
+  - `dropdownLabel`: 64 chars
 
 ## LLM-Aware Icons
 
