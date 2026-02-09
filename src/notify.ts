@@ -3,6 +3,7 @@ import nodeNotifier from "node-notifier";
 import os from "os";
 import path from "path";
 
+import { CLIENT_ICONS, resolveNotificationTimeout } from "./notify.config";
 import { findAllNotifierBaseDirs } from "./notifier-paths";
 import type { NotifyOptions, NotifyResult } from "./notify.types";
 
@@ -40,29 +41,6 @@ export function getNotifierPath(): string | undefined {
   }
   return undefined;
 }
-
-/**
- * Mapping of MCP client names to their icon filenames. This doesn't need to be exact matches,
- * just a way to associate known clients with icons. The keys are normalized client names
- * (lowercase, hyphens instead of spaces) to allow for flexible matching.
- * Keys are normalized client names (lowercase, hyphens instead of spaces).
- */
-export const CLIENT_ICONS: Record<string, string> = {
-  // Anthropic
-  claude: "claude.png",
-  "claude-desktop": "claude.png",
-  "claude-code": "claude.png",
-  opus: "claude.png",
-
-  // Openai
-  openai: "openai.png",
-  chatgpt: "openai.png",
-  codex: "openai.png",
-
-  // Misc
-  cursor: "cursor.png",
-  vscode: "vscode.png",
-};
 
 /**
  * Get the directory containing client icon assets.
@@ -127,13 +105,8 @@ export function getContentImageForClient(
   return fs.existsSync(iconPath) ? iconPath : undefined;
 }
 
-/** Default timeout for simple notifications (seconds) */
-const TIMEOUT_SIMPLE = 10;
-/** Default timeout for notifications with action buttons (seconds) */
-const TIMEOUT_ACTIONS = 20;
-/** Default timeout for notifications with text reply input (seconds) */
-const TIMEOUT_REPLY = 30;
 export type { NotifyOptions, NotifyResult } from "./notify.types";
+export { CLIENT_ICONS } from "./notify.config";
 
 /**
  * Create a notifier instance configured for the current platform.
@@ -164,16 +137,7 @@ function getNotifier() {
  * @returns Timeout in seconds
  */
 function getTimeout(options: NotifyOptions): number {
-  if (options.timeout !== undefined) {
-    return options.timeout;
-  }
-  if (options.reply) {
-    return TIMEOUT_REPLY;
-  }
-  if (options.actions && options.actions.length > 0) {
-    return TIMEOUT_ACTIONS;
-  }
-  return TIMEOUT_SIMPLE;
+  return resolveNotificationTimeout(options);
 }
 
 /**

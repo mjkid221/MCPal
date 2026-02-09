@@ -4,39 +4,15 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-import {
-  getContentImageForClient,
-  notify,
-  type NotifyResult,
-} from "./notify.js";
+import { getContentImageForClient, notify } from "./notify.js";
 import { ensureMcpalAppSetup } from "./scripts/setup-notifier.js";
-
-function formatToolResult(
-  title: string,
-  message: string,
-  result: NotifyResult,
-): string {
-  const lines: string[] = [
-    "status: sent",
-    `title: ${title}`,
-    `message: ${message}`,
-    `response: ${result.response}`,
-  ];
-
-  if (result.activationType) {
-    lines.push(`activationType: ${result.activationType}`);
-  }
-  if (result.reply !== undefined) {
-    lines.push(`reply: ${result.reply}`);
-  }
-
-  return lines.join("\n");
-}
-
-function formatToolError(error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error);
-  return `status: error\nmessage: ${message}`;
-}
+import { sendNotificationOutputSchema } from "./tool-result.schema.js";
+import {
+  buildErrorPayload,
+  buildSuccessPayload,
+  formatLegacyText,
+  sanitizeSendNotificationInput,
+} from "./tool-result.js";
 
 const server = new McpServer(
   {
@@ -112,37 +88,62 @@ server.registerTool(
           "Custom timeout in seconds. Defaults: 10s (simple), 20s (actions), 30s (reply)",
         ),
     },
+    outputSchema: sendNotificationOutputSchema,
   },
   async ({ message, title, actions, dropdownLabel, reply, timeout }) => {
+    const sanitizedInput = sanitizeSendNotificationInput({
+      message,
+      title,
+      actions,
+      dropdownLabel,
+      reply,
+      timeout,
+    });
+
     try {
       // Get client info to determine which icon to show
       const clientInfo = server.server.getClientVersion();
       const contentImage = getContentImageForClient(clientInfo?.name);
 
       const result = await notify({
-        message,
-        title: title ?? "MCPal",
-        actions,
-        dropdownLabel,
-        reply,
+        message: sanitizedInput.options.message,
+        title: sanitizedInput.options.title,
+        actions: sanitizedInput.options.actions,
+        dropdownLabel: sanitizedInput.options.dropdownLabel,
+        reply: sanitizedInput.options.reply,
         contentImage,
-        timeout,
+        timeout: sanitizedInput.options.timeout,
       });
 
+      const payload = buildSuccessPayload(
+        sanitizedInput.options.title,
+        sanitizedInput.options.message,
+        result,
+        sanitizedInput.sanitized,
+      );
+
       return {
+        structuredContent: payload,
         content: [
           {
             type: "text",
-            text: formatToolResult(title ?? "MCPal", message, result),
+            text: formatLegacyText(payload),
           },
         ],
       };
     } catch (error) {
+      const payload = buildErrorPayload(error, {
+        title: sanitizedInput.options.title,
+        message: sanitizedInput.options.message,
+        sanitized: sanitizedInput.sanitized,
+      });
+
       return {
+        structuredContent: payload,
         content: [
           {
             type: "text",
-            text: formatToolError(error),
+            text: formatLegacyText(payload),
           },
         ],
         isError: true,

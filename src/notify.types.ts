@@ -16,7 +16,7 @@ export interface NotifyOptions {
   reply?: boolean;
   /** Path to an image to display on the right side of the notification. macOS only. */
   contentImage?: string;
-  /** Custom timeout in seconds. Defaults: 10s (simple), 30s (actions), 60s (reply). */
+  /** Custom timeout in seconds. Defaults: 10s (simple), 20s (actions), 30s (reply). */
   timeout?: number;
 }
 
