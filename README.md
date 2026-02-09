@@ -113,6 +113,12 @@ Send native notifications with optional features.
 }
 ```
 
+You can reply directly from the notification without switching apps:
+
+<p align="center">
+  <img src="https://amethyst-available-jellyfish-543.mypinata.cloud/ipfs/bafkreiftznk4b5kjfxs3zqr4phwnu5gg3e3mvdkkub5uot54xkqlddkqte" alt="Reply to MCPal directly from notification" width="380" />
+</p>
+
 ### Tool Result Contract
 
 `send_notification` now returns a dual contract:
