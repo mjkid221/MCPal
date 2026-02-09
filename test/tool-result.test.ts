@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { SANITIZE_LIMITS } from "../src/tool-result.config";
+import { sendNotificationOutputSchema } from "../src/tool-result.schema";
 import {
-  SANITIZE_LIMITS,
   buildErrorPayload,
   buildSuccessPayload,
   formatLegacyText,
   sanitizeSendNotificationInput,
-  sendNotificationOutputSchema,
 } from "../src/tool-result";
 
 test("legacy text escapes multiline payload values on single lines", () => {

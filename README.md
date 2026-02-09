@@ -168,7 +168,7 @@ This works via the MCP protocol's client identification - each client sends its 
 
 ### Adding New Client Icons
 
-To add support for a new LLM client, add a PNG to `src/assets/clients/` and update the mapping in `src/notify.ts`.
+To add support for a new LLM client, add a PNG to `src/assets/clients/` and update the mapping in `src/notify.config.ts`.
 
 **Icon Specifications:**
 

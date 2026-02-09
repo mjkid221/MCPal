@@ -6,12 +6,12 @@ import { z } from "zod";
 
 import { getContentImageForClient, notify } from "./notify.js";
 import { ensureMcpalAppSetup } from "./scripts/setup-notifier.js";
+import { sendNotificationOutputSchema } from "./tool-result.schema.js";
 import {
   buildErrorPayload,
   buildSuccessPayload,
   formatLegacyText,
   sanitizeSendNotificationInput,
-  sendNotificationOutputSchema,
 } from "./tool-result.js";
 
 const server = new McpServer(

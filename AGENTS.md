@@ -10,7 +10,7 @@ This file provides context for AI assistants (like Claude) working on this codeb
 - **Cross-platform**: Works on macOS, Linux, and Windows via `node-notifier`
 - LLM-aware icons on macOS (shows Claude/Cursor/VS Code logo)
 - Action buttons and text reply support
-- Smart timeouts (10s simple, 30s actions, 60s reply)
+- Smart timeouts (10s simple, 20s actions, 30s reply)
 - Custom app branding on macOS (MCPal.app)
 
 ### Platform Support
@@ -25,6 +25,11 @@ This file provides context for AI assistants (like Claude) working on this codeb
 ```
 src/
 ├── index.ts              # MCP server entry point, tool registration
+├── notify.config.ts      # Notification policy constants (timeouts, client icon map)
+├── tool-result.ts        # Tool output formatting + input sanitization helpers
+├── tool-result.config.ts # Tool-result policy constants (limits, field order)
+├── tool-result.schema.ts # Zod schemas for tool-result contracts
+├── tool-result.types.ts  # Shared type contracts for tool-result module
 ├── notify.ts             # Core notification logic, client icon detection
 ├── assets/
 │   ├── icons/            # MCPal app + notification icons
@@ -43,7 +48,18 @@ src/
 - Creates `McpServer` with name "mcpal"
 - Registers `send_notification` tool with Zod schema
 - Gets client info via `server.server.getClientVersion()` for icon detection
-- Returns deterministic tool-result status lines for LLM consumption
+- Returns canonical `structuredContent` plus parser-safe legacy text output
+
+### src/tool-result.ts / src/tool-result.types.ts / src/tool-result.schema.ts
+- `tool-result.ts` contains pure helpers for sanitization + output formatting
+- `tool-result.types.ts` contains module interfaces/type contracts only
+- `tool-result.schema.ts` contains Zod runtime schemas only
+- `formatLegacyText()` JSON-encodes line values to keep line-oriented parsers safe
+
+### src/notify.config.ts / src/tool-result.config.ts
+- Config modules hold policy constants and reusable configuration values
+- `notify.config.ts` owns default timeout policy and `CLIENT_ICONS`
+- `tool-result.config.ts` owns sanitizer limits and legacy text field order
 
 ### src/notify.ts
 - `notify()` - Main function that sends notifications
@@ -51,7 +67,7 @@ src/
 - `getMcpalIconPath()` - Resolves bundled notification icon (`assets/icons/mcpal.png`)
 - `getNotifierPath()` - Finds the renamed MCPal.app executable
 - `getNotifier()` - Creates NotificationCenter with custom path
-- Timeout constants: `TIMEOUT_SIMPLE`, `TIMEOUT_ACTIONS`, `TIMEOUT_REPLY`
+- Uses timeout resolution policy from `notify.config.ts`
 
 ### src/scripts/setup-notifier.ts
 - Runs on `postinstall`
@@ -126,7 +142,7 @@ npx @modelcontextprotocol/inspector node dist/index.js
 
 ### Add a new client icon
 1. Add PNG to `src/assets/clients/` (e.g., `windsurf.png`)
-2. Add mapping in `src/notify.ts`:
+2. Add mapping in `src/notify.config.ts`:
    ```typescript
    export const CLIENT_ICONS: Record<string, string> = {
      // ... existing
@@ -136,11 +152,13 @@ npx @modelcontextprotocol/inspector node dist/index.js
 3. Rebuild: `pnpm run build`
 
 ### Change timeout defaults
-Edit constants in `src/notify.ts`:
+Edit constants in `src/notify.config.ts`:
 ```typescript
-const TIMEOUT_SIMPLE = 10;  // seconds
-const TIMEOUT_ACTIONS = 20;
-const TIMEOUT_REPLY = 30;
+export const DEFAULT_TIMEOUTS = {
+  simple: 10,
+  actions: 20,
+  reply: 30,
+} as const;
 ```
 
 ### Update MCP tool schema
@@ -200,6 +218,15 @@ The user can type their response directly in the notification without switching 
 - **postinstall required**: `--ignore-scripts` will break macOS customizations
 - **MCP server restart**: After code changes, MCP server must restart to pick up changes
 - **Client names are guesses**: Actual names depend on what each MCP client sends
+
+## Code Quality Preferences
+
+- Avoid ambiguous expressions like `flag || undefined`. Use explicit conditionals/object assembly so intent is obvious.
+- Keep module types/interfaces in dedicated `*.types.ts` files and import them with `import type`.
+- Keep Zod/runtime validation schemas in dedicated `*.schema.ts` files.
+- Keep core logic modules free of type declarations and schema declarations.
+- Place policy/reused constants in domain `*.config.ts` modules; keep one-off implementation constants local.
+- Prefer pure helper functions for formatting/sanitization logic so behavior is unit-testable.
 
 ## Post Task Completion Hook
 

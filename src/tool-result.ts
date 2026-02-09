@@ -1,58 +1,16 @@
-import { z } from "zod";
-
+import { DEFAULT_NOTIFICATION_TITLE } from "./notify.config";
 import type { NotifyResult } from "./notify.types";
-
-export const SANITIZE_LIMITS = {
-  title: 256,
-  message: 4000,
-  maxActions: 3,
-  action: 64,
-  dropdownLabel: 64,
-} as const;
+import { LEGACY_TEXT_FIELDS, SANITIZE_LIMITS } from "./tool-result.config";
+import type {
+  ErrorPayloadContext,
+  SanitizeResult,
+  SanitizedSendNotificationInput,
+  SendNotificationInput,
+  SendNotificationOutput,
+} from "./tool-result.types";
 
 // eslint-disable-next-line no-control-regex
 const UNSAFE_CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
-
-export const sendNotificationOutputSchema = z.object({
-  status: z.enum(["sent", "error"]),
-  title: z.string().optional(),
-  message: z.string().optional(),
-  response: z.string().optional(),
-  activationType: z.string().optional(),
-  reply: z.string().optional(),
-  error: z.string().optional(),
-  sanitized: z.boolean().optional(),
-});
-
-export type SendNotificationOutput = z.infer<
-  typeof sendNotificationOutputSchema
->;
-
-export interface SendNotificationInput {
-  message: string;
-  title?: string;
-  actions?: string[];
-  dropdownLabel?: string;
-  reply?: boolean;
-  timeout?: number;
-}
-
-export interface SanitizedSendNotificationInput {
-  options: {
-    message: string;
-    title: string;
-    actions?: string[];
-    dropdownLabel?: string;
-    reply?: boolean;
-    timeout?: number;
-  };
-  sanitized: boolean;
-}
-
-interface SanitizeResult {
-  value: string;
-  changed: boolean;
-}
 
 function normalizeNewlines(value: string): string {
   return value.replace(/\r\n?/g, "\n");
@@ -77,10 +35,13 @@ function sanitizeText(value: string, maxLength: number): SanitizeResult {
   };
 }
 
+/**
+ * Sanitize tool input values and report whether any field was modified.
+ */
 export function sanitizeSendNotificationInput(
   input: SendNotificationInput,
 ): SanitizedSendNotificationInput {
-  const titleText = input.title ?? "MCPal";
+  const titleText = input.title ?? DEFAULT_NOTIFICATION_TITLE;
   const sanitizedTitle = sanitizeText(titleText, SANITIZE_LIMITS.title);
   const sanitizedMessage = sanitizeText(input.message, SANITIZE_LIMITS.message);
 
@@ -149,57 +110,68 @@ function toErrorMessage(error: unknown): string {
   return sanitizeText(rawMessage, SANITIZE_LIMITS.message).value;
 }
 
+function addSanitizedFlag(
+  payload: SendNotificationOutput,
+  sanitized: boolean,
+): SendNotificationOutput {
+  if (!sanitized) {
+    return payload;
+  }
+  return {
+    ...payload,
+    sanitized: true,
+  };
+}
+
+/**
+ * Build the canonical success payload for `send_notification`.
+ */
 export function buildSuccessPayload(
   title: string,
   message: string,
   result: NotifyResult,
   sanitized: boolean,
 ): SendNotificationOutput {
-  return {
-    status: "sent",
-    title,
-    message,
-    response: result.response,
-    activationType: result.activationType,
-    reply: result.reply,
-    sanitized: sanitized || undefined,
-  };
+  return addSanitizedFlag(
+    {
+      status: "sent",
+      title,
+      message,
+      response: result.response,
+      activationType: result.activationType,
+      reply: result.reply,
+    },
+    sanitized,
+  );
 }
 
+/**
+ * Build the canonical error payload for `send_notification`.
+ */
 export function buildErrorPayload(
   error: unknown,
-  context: {
-    title: string;
-    message: string;
-    sanitized: boolean;
-  },
+  context: ErrorPayloadContext,
 ): SendNotificationOutput {
-  return {
-    status: "error",
-    title: context.title,
-    message: context.message,
-    error: toErrorMessage(error),
-    sanitized: context.sanitized || undefined,
-  };
+  return addSanitizedFlag(
+    {
+      status: "error",
+      title: context.title,
+      message: context.message,
+      error: toErrorMessage(error),
+    },
+    context.sanitized,
+  );
 }
 
 function encodeLegacyValue(value: string | boolean): string {
   return JSON.stringify(value);
 }
 
+/**
+ * Format payload as parser-safe legacy line-based text (`key: JSON-string`).
+ */
 export function formatLegacyText(payload: SendNotificationOutput): string {
-  const orderedEntries: Array<[keyof SendNotificationOutput, unknown]> = [
-    ["status", payload.status],
-    ["title", payload.title],
-    ["message", payload.message],
-    ["response", payload.response],
-    ["activationType", payload.activationType],
-    ["reply", payload.reply],
-    ["error", payload.error],
-    ["sanitized", payload.sanitized],
-  ];
-
-  return orderedEntries
+  return LEGACY_TEXT_FIELDS.map((key) => [key, payload[key]] as const)
     .filter(([, value]) => value !== undefined)
     .map(
       ([key, value]) =>
